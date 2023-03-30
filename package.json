@@ -1,0 +1,20 @@
+{
+  "name": "steam-mobile",
+  "version": "0.0.1",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepare": "rm -rf dist && tsc --outDir dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "description": "",
+  "keywords": [],
+  "author": "waspyru",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {}
+}
