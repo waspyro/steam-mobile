@@ -13,13 +13,14 @@
   },
   "description": "",
   "keywords": [],
-  "author": "waspyru",
+  "author": "waspyro",
   "license": "ISC",
   "dependencies": {
     "steam-session": "github:waspyro/steam-session",
     "steam-totp": "^2.1.2"
   },
   "devDependencies": {
-    "@types/steam-totp": "^2.1.0"
+    "@types/steam-totp": "^2.1.0",
+    "persistorm": "github:waspyro/persistorm"
   }
 }

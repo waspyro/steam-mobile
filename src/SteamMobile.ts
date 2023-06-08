@@ -1,22 +1,26 @@
 import SteamSession from "steam-session";
 import * as crypto from "crypto";
-import {obj} from "steam-session/dist/extra/types";
 import totp from 'steam-totp'
-import {getSuccessfulJsonFromResponse} from "steam-session/dist/utils";
-import {MalformedResponse} from "steam-session/dist/Errors";
 import {ConfirmationDetails} from "./types";
+import {getSuccessfulJsonFromResponse} from "steam-session/dist/common/utils";
+import {MalformedResponse} from "steam-session/dist/constructs/Errors";
+import {obj} from "steam-session/dist/common/types";
+import {undici} from "steam-session";
 
 export default class SteamMobile {
+    secrets: {shared: string, identity: string} = {shared: null, identity: null}
+    deviceid: string
+
     constructor(
-        private session: SteamSession,
-        private secrets: {shared: string, identity: string} = {shared: null, identity: null},
-        readonly deviceid: string,
-        readonly steamid: string = session.steamid
+        public session: SteamSession,
+        {shared = null, identity = null, deviceid} = {} as {shared?: string, identity?: string, deviceid?: string}
     ) {
         if(session.env.websiteId !== 'Mobile') throw new Error('SteamSession should use mobile env')
         if(!session.steamid) throw new Error('SteamSession missing steamid property. ' +
-            'Set steamid or refreshToken manually or just logon' )
-        if(!deviceid) throw new Error('missing device id property')
+            'Set steamid or refreshToken manually or just logon')
+        this.secrets.shared = shared
+        this.secrets.identity = identity
+        this.deviceid = deviceid || SteamMobile.generateDeviceID(session.steamid)
     }
 
     getConfirmations(): Promise<ConfirmationDetails[]> {
@@ -78,7 +82,7 @@ export default class SteamMobile {
     }
 
     private static createFormDataWithConfirmations = (confs: ConfirmationDetails[]) => {
-        const fd = new FormData()
+        const fd = new undici.FormData()
         for(const conf of confs) {
             fd.append('cid[]', conf.id)
             fd.append('ck[]', conf.nonce)
