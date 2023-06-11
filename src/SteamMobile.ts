@@ -66,6 +66,10 @@ export default class SteamMobile {
         return assignTo
     }
 
+    get Refresher() {
+        return SteamSession.MobileSessionRefresher(this.session, this.secrets.shared)
+    }
+
     static generateDeviceID(steamid: string, salt: string = '') {
         if(!steamid) throw new Error('steamid should not be empty')
         return crypto.createHash('sha1').update(steamid + salt).digest('hex')
