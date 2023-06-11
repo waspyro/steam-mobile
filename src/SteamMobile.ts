@@ -1,7 +1,7 @@
 import SteamSession from "steam-session";
 import * as crypto from "crypto";
 import totp from 'steam-totp'
-import {ConfirmationDetails} from "./types";
+import {ConfirmationDetails, SteamMobileConstructorParams, SteamMobileFromRestoredSessionParams} from "./types";
 import {getSuccessfulJsonFromResponse} from "steam-session/dist/common/utils";
 import {MalformedResponse} from "steam-session/dist/constructs/Errors";
 import {obj} from "steam-session/dist/common/types";
@@ -13,14 +13,14 @@ export default class SteamMobile {
 
     constructor(
         public session: SteamSession,
-        {shared = null, identity = null, deviceid} = {} as {shared?: string, identity?: string, deviceid?: string}
+        {shared = null, identity = null, deviceid}: SteamMobileConstructorParams
     ) {
         if(session.env.websiteId !== 'Mobile') throw new Error('SteamSession should use mobile env')
-        if(!session.steamid) throw new Error('SteamSession missing steamid property. ' +
-            'Set steamid or refreshToken manually or just logon')
+        this.session = session
         this.secrets.shared = shared
         this.secrets.identity = identity
-        this.deviceid = deviceid || SteamMobile.generateDeviceID(session.steamid)
+        this.deviceid = deviceid
+        Patch.call(this, ['getConfirmations', 'actOnConfrimations'])
     }
 
     getConfirmations(): Promise<ConfirmationDetails[]> {
@@ -70,6 +70,12 @@ export default class SteamMobile {
         return SteamSession.MobileSessionRefresher(this.session, this.secrets.shared)
     }
 
+    static fromRestoredSession = async (params: SteamMobileFromRestoredSessionParams) => {
+        if(!params.refresher && params.login && params.password)
+            params.refresher = SteamSession.CredentialsRefresher(params.login, params.password, params.shared)
+        return SteamSession.restore(params).then(session => new SteamMobile(session, params))
+    }
+
     static generateDeviceID(steamid: string, salt: string = '') {
         if(!steamid) throw new Error('steamid should not be empty')
         return crypto.createHash('sha1').update(steamid + salt).digest('hex')
@@ -94,4 +100,16 @@ export default class SteamMobile {
         return fd
     }
 
+}
+
+function Patch(this: SteamMobile, keysToPatch: string[]) {
+    const keys = keysToPatch.map(k => [k, this[k]])
+    for(const [key] of keys) {
+        this[key] = async (...args) => {
+            if(!this.session.steamid) await this.session.refreshCookies()
+            if(!this.deviceid) this.deviceid = SteamMobile.generateDeviceID(this.session.steamid)
+            for(const [key, origin] of keys) this[key] = origin
+            return this[key](...args)
+        }
+    }
 }

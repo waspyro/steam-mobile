@@ -1,3 +1,5 @@
+import {SteamSessionRestoreConstructorParams} from "steam-session/dist/common/types";
+
 export type ConfirmationDetails = { //todo: market listing, trade ets... confirmations type as const
     "type": number,
     "type_name": string,
@@ -13,3 +15,14 @@ export type ConfirmationDetails = { //todo: market listing, trade ets... confirm
     "summary": string[],
     "warn": null | string
 }
+
+export type SteamMobileConstructorParams = {
+    shared?: string,
+    identity?: string,
+    deviceid?: string,
+}
+
+export type SteamMobileFromRestoredSessionParams =
+    SteamSessionRestoreConstructorParams
+    & SteamMobileConstructorParams
+    & {login?: string, password?: string}
