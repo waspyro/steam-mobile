@@ -20,6 +20,7 @@
     "steam-totp": "^2.1.2"
   },
   "devDependencies": {
+    "@types/node": "^20.3.0",
     "@types/steam-totp": "^2.1.0",
     "persistorm": "github:waspyro/persistorm"
   }

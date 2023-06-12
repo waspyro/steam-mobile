@@ -1,11 +1,11 @@
 import SteamSession from "steam-session";
-import * as crypto from "crypto";
 import totp from 'steam-totp'
 import {ConfirmationDetails, SteamMobileConstructorParams, SteamMobileFromRestoredSessionParams} from "./types";
 import {getSuccessfulJsonFromResponse} from "steam-session/dist/common/utils";
 import {MalformedResponse} from "steam-session/dist/constructs/Errors";
 import {obj} from "steam-session/dist/common/types";
 import {undici} from "steam-session";
+import {randomUUID, createHash, randomBytes} from "crypto";
 
 export default class SteamMobile {
     secrets: {shared: string, identity: string} = {shared: null, identity: null}
@@ -76,14 +76,17 @@ export default class SteamMobile {
         return SteamSession.restore(params).then(session => new SteamMobile(session, params))
     }
 
-    static generateDeviceID(steamid: string, salt: string = '') {
-        if(!steamid) throw new Error('steamid should not be empty')
-        return crypto.createHash('sha1').update(steamid + salt).digest('hex')
+    static genericDeviceID = (...saltData: string[]) => {
+        const salt = saltData.join('')
+        if(!salt) throw new Error('salt should not be empty')
+        return createHash('sha1').update(salt).digest('hex')
             .replace(/^([0-9a-f]{8})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{12}).*$/, '$1-$2-$3-$4-$5')
             .toUpperCase()
     }
 
-    static getSalt = () => process.env.STEAM_TOTP_SALT || crypto.randomBytes(8).toString('hex')
+    static getSalt = () => process.env.STEAM_TOTP_SALT || randomBytes(8).toString('hex')
+
+    static randomDeviceID = () => randomUUID().toUpperCase()
 
     static url = (path: string, params?: obj) => {
         const url = new URL(path, 'https://steamcommunity.com/mobileconf/')
@@ -107,7 +110,7 @@ function Patch(this: SteamMobile, keysToPatch: string[]) {
     for(const [key] of keys) {
         this[key] = async (...args) => {
             if(!this.session.steamid) await this.session.refreshCookies()
-            if(!this.deviceid) this.deviceid = SteamMobile.generateDeviceID(this.session.steamid)
+            if(!this.deviceid) this.deviceid = SteamMobile.genericDeviceID(this.session.steamid, SteamMobile.getSalt())
             for(const [key, origin] of keys) this[key] = origin
             return this[key](...args)
         }
