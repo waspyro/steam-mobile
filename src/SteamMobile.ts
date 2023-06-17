@@ -67,6 +67,7 @@ export default class SteamMobile {
     }
 
     get Refresher() {
+        if(!this.secrets.shared) return this.session.tokenRefresher
         return SteamSession.MobileSessionRefresher(this.session, this.secrets.shared)
     }
 
