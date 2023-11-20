@@ -1,5 +1,5 @@
 {
-  "name": "steam-mobile",
+  "name": "@waspyro/steam-mobile",
   "version": "1.0.2",
   "main": "dist/index.js",
   "type": "commonjs",
@@ -8,6 +8,7 @@
     "dist"
   ],
   "scripts": {
+    "prepare": "rm -rf dist && tsc --outDir dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "description": "",
