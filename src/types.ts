@@ -1,4 +1,4 @@
-import {SteamSessionRestoreConstructorParams} from "steam-session/dist/common/types";
+import {SteamSessionRestoreConstructorParams} from "@waspyro/steam-session/dist/common/types";
 
 export type ConfirmationDetails = { //todo: market listing, trade ets... confirmations type as const
     "type": number,

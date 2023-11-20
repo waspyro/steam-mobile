@@ -1,10 +1,10 @@
-import SteamSession from "steam-session";
+import SteamSession from "@waspyro/steam-session";
 import totp from 'steam-totp'
 import {ConfirmationDetails, SteamMobileConstructorParams, SteamMobileFromRestoredSessionParams} from "./types";
-import {getSuccessfulJsonFromResponse} from "steam-session/dist/common/utils";
-import {MalformedResponse} from "steam-session/dist/constructs/Errors";
-import {obj} from "steam-session/dist/common/types";
-import {undici} from "steam-session";
+import {getSuccessfulJsonFromResponse} from "@waspyro/steam-session/dist/common/utils";
+import {MalformedResponse} from "@waspyro/steam-session/dist/constructs/Errors";
+import {obj} from "@waspyro/steam-session/dist/common/types";
+import {undici} from "@waspyro/steam-session";
 import {randomUUID, createHash, randomBytes} from "crypto";
 
 export default class SteamMobile {
