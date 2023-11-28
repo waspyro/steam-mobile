@@ -1,6 +1,6 @@
 {
   "name": "@waspyro/steam-mobile",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "dist/index.js",
   "type": "commonjs",
   "types": "dist/index.d.ts",
@@ -16,12 +16,11 @@
   "author": "waspyro",
   "license": "ISC",
   "dependencies": {
-    "@waspyro/steam-session": "^0.3.0",
+    "@waspyro/steam-session": "^0.3.6",
     "steam-totp": "^2.1.2"
   },
   "devDependencies": {
-    "@types/node": "^20.3.1",
-    "@types/steam-totp": "^2.1.0",
-    "persistorm": "^2.0.2"
+    "@types/node": "^20.10.0",
+    "@types/steam-totp": "^2.1.2"
   }
 }

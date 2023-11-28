@@ -16,10 +16,10 @@ export default class SteamMobile {
         {shared = null, identity = null, deviceid}: SteamMobileConstructorParams
     ) {
         if(session.env.websiteId !== 'Mobile') throw new Error('SteamSession should use mobile env')
+        this.deviceid = deviceid || this.session.env.meta.deviceid
         this.session = session
         this.secrets.shared = shared
         this.secrets.identity = identity
-        this.deviceid = deviceid
         Patch.call(this, ['getConfirmations', 'actOnConfrimations'])
     }
 
@@ -81,7 +81,7 @@ export default class SteamMobile {
         const salt = saltData.join('')
         if(!salt) throw new Error('salt should not be empty')
         return createHash('sha1').update(salt).digest('hex')
-            .replace(/^([0-9a-f]{8})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{12}).*$/, '$1-$2-$3-$4-$5')
+            .replace(/(\w{8})(\w{4})(\w{4})(\w{4})(\w{12}).*$/, '$1-$2-$3-$4-$5')
             .toUpperCase()
     }
 
@@ -111,7 +111,11 @@ function Patch(this: SteamMobile, keysToPatch: string[]) {
     for(const [key] of keys) {
         this[key] = async (...args) => {
             if(!this.session.steamid) await this.session.refreshCookies()
-            if(!this.deviceid) this.deviceid = SteamMobile.genericDeviceID(this.session.steamid, SteamMobile.getSalt())
+            if(!this.deviceid) {
+                this.deviceid = SteamMobile.genericDeviceID(this.session.steamid, SteamMobile.getSalt())
+                this.session.env.meta.deviceid = this.deviceid
+                this.session.updateEnv()
+            }
             for(const [key, origin] of keys) this[key] = origin
             return this[key](...args)
         }
