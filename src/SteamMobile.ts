@@ -42,6 +42,14 @@ export default class SteamMobile {
             .then(() => true).catch(() => false)
     }
 
+    acceptAllConfirmations = () =>
+        this.getConfirmations()
+        .then(confirmations =>
+        this.actOnConfrimations(confirmations, true)
+        .then(success =>
+        ({confirmations, success})
+    ))
+
     getTwoFactorCode = (): string => {
         return this.#usedCode = totp.generateAuthCode(this.secrets.shared)
     }
